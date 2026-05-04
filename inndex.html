@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petite France — Boulangerie & Pâtisserie · Praha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #faf6ef;
+  --warm-white: #fff9f2;
+  --sage: #7a9e87;
+  --sage-light: #a8c5b0;
+  --sage-dark: #4a7a5c;
+  --gold: #c8a96e;
+  --gold-light: #e8cfa0;
+  --gold-dark: #9a7a40;
+  --charcoal: #2a2520;
+  --brown: #6b4f35;
+  --blush: #f0ddd0;
+  --text: #3a3028;
+  --text-light: #7a6a5a;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ========== LOADER ========== */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: var(--charcoal);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+#loader.hidden { opacity: 0; visibility: hidden; }
+
+.loader-croissant {
+  font-size: clamp(60px, 12vw, 100px);
+  animation: spinBounce 1.4s ease-in-out infinite;
+}
+@keyframes spinBounce {
+  0%   { transform: rotate(-20deg) scale(0.9); }
+  50%  { transform: rotate(20deg) scale(1.15); }
+  100% { transform: rotate(-20deg) scale(0.9); }
+}
+.loader-text {
+  font-family: 'Playfair Display', serif;
+  color: var(--gold);
+  font-size: clamp(18px, 4vw, 32px);
+  letter-spacing: 0.3em;
+  margin-top: 24px;
+  opacity: 0;
+  animation: fadeInUp 0.8s 0.4s forwards;
+}
+.loader-bar {
+  width: 180px; height: 2px;
+  background: rgba(255,255,255,0.1);
+  margin-top: 20px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.loader-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--sage), var(--gold));
+  border-radius: 2px;
+  animation: loadBar 1.8s ease forwards;
+}
+@keyframes loadBar { from { width: 0 } to { width: 100% } }
+
+/* ========== CURSOR ========== */
+.cursor-dot {
+  width: 8px; height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: transform 0.1s;
+}
+.cursor-ring {
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--sage);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9997;
+  transform: translate(-50%,-50%);
+  transition: all 0.25s ease;
+}
+@media (pointer: coarse) { .cursor-dot, .cursor-ring { display: none; } }
+
+/* ========== PARTICLES BG ========== */
+#particles-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ========== NAV ========== */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 18px clamp(20px, 5vw, 60px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.4s, backdrop-filter 0.4s, box-shadow 0.4s;
+}
+nav.scrolled {
+  background: rgba(250,246,239,0.92);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 30px rgba(42,37,32,0.08);
+}
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(18px, 3vw, 26px);
+  color: var(--charcoal);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-logo span { color: var(--sage-dark); font-style: italic; }
+.nav-links {
+  display: flex;
+  gap: clamp(16px, 3vw, 36px);
+  list-style: none;
+}
+.nav-links a {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-decoration: none;
+  position: relative;
+  transition: color 0.3s;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -3px; left: 0;
+  width: 0; height: 1.5px;
+  background: var(--gold);
+  transition: width 0.35s ease;
+}
+.nav-links a:hover { color: var(--sage-dark); }
+.nav-links a:hover::after { width: 100%; }
+
+/* Lang switcher */
+.lang-switcher {
+  display: flex;
+  gap: 6px;
+}
+.lang-btn {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: all 0.25s;
+  font-family: 'DM Sans', sans-serif;
+}
+.lang-btn.active, .lang-btn:hover {
+  border-color: var(--sage);
+  color: var(--sage-dark);
+  background: rgba(122,158,135,0.1);
+}
+
+/* Hamburger */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px;
+  background: none;
+  border: none;
+}
+.hamburger span {
+  display: block; width: 24px; height: 2px;
+  background: var(--charcoal);
+  transition: all 0.3s;
+  border-radius: 2px;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Mobile nav */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(250,246,239,0.97);
+  backdrop-filter: blur(20px);
+  z-index: 99;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.mobile-nav.open { opacity: 1; }
+.mobile-nav a {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(24px, 6vw, 36px);
+  color: var(--charcoal);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.mobile-nav a:hover { color: var(--sage-dark); }
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  .mobile-nav { display: flex; }
+}
+
+/* ========== HERO ========== */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(80px, 12vw, 140px) clamp(20px, 5vw, 80px) clamp(60px, 8vw, 100px);
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 50%, rgba(168,197,176,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 20% 80%, rgba(200,169,110,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 80% 10%, rgba(240,221,208,0.2) 0%, transparent 55%),
+    var(--warm-white);
+  z-index: 0;
+}
+
+.hero-pattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 40px,
+      rgba(122,158,135,0.04) 40px,
+      rgba(122,158,135,0.04) 41px
+    );
+  z-index: 0;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 680px;
+}
+
+.hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--sage-dark);
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeInUp 0.8s 2s forwards;
+}
+.hero-label::before {
+  content: '';
+  width: 40px; height: 1px;
+  background: var(--sage);
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(42px, 8vw, 96px);
+  line-height: 1.0;
+  font-weight: 700;
+  color: var(--charcoal);
+  margin-bottom: 8px;
+  opacity: 0;
+  animation: heroTitle 1s 2.1s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+@keyframes heroTitle {
+  from { opacity: 0; transform: translateY(30px) skewY(1deg); clip-path: inset(0 0 100% 0); }
+  to   { opacity: 1; transform: translateY(0) skewY(0deg); clip-path: inset(0 0 0% 0); }
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--sage-dark);
+  display: block;
+}
+
+.hero-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(18px, 3vw, 28px);
+  font-weight: 300;
+  color: var(--text-light);
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeInUp 0.9s 2.4s forwards;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.hero-desc {
+  font-size: clamp(14px, 1.8vw, 16px);
+  line-height: 1.8;
+  color: var(--text-light);
+  max-width: 500px;
+  margin-bottom: 44px;
+  opacity: 0;
+  animation: fadeInUp 0.9s 2.6s forwards;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeInUp 0.9s 2.8s forwards;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--charcoal);
+  color: var(--cream);
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
+  border: 2px solid var(--charcoal);
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--sage-dark);
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+.btn-primary:hover::before { transform: translateX(0); }
+.btn-primary span { position: relative; z-index: 1; }
+.btn-primary:hover { border-color: var(--sage-dark); transform: translateY(-2px); box-shadow: 0 12px 30px rgba(74,122,92,0.25); }
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: var(--charcoal);
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.35s ease;
+  border: 2px solid rgba(42,37,32,0.25);
+}
+.btn-outline:hover {
+  border-color: var(--gold);
+  color: var(--gold-dark);
+  transform: translateY(-2px);
+  background: rgba(200,169,110,0.06);
+}
+
+/* Hero decorative */
+.hero-deco {
+  position: absolute;
+  right: clamp(40px, 10vw, 140px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  opacity: 0;
+  animation: fadeInRight 1.2s 2.5s forwards;
+}
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateY(-50%) translateX(60px); }
+  to   { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+.hero-deco-circle {
+  width: clamp(220px, 35vw, 480px);
+  height: clamp(220px, 35vw, 480px);
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(168,197,176,0.25) 0%, rgba(200,169,110,0.15) 100%);
+  border: 1px solid rgba(122,158,135,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.hero-deco-inner {
+  font-size: clamp(80px, 14vw, 180px);
+  animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 20px 40px rgba(122,158,135,0.2));
+}
+@keyframes float {
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-16px) rotate(3deg); }
+}
+.hero-deco-ring {
+  position: absolute;
+  width: 110%; height: 110%;
+  border-radius: 50%;
+  border: 1px dashed rgba(200,169,110,0.25);
+  animation: rotateSlow 20s linear infinite;
+}
+@keyframes rotateSlow { to { transform: rotate(360deg); } }
+.hero-deco-dots {
+  position: absolute;
+  width: 6px; height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  top: 8%;
+  right: 12%;
+  box-shadow: 0 0 12px var(--gold-light);
+}
+
+.hero-stats {
+  display: flex;
+  gap: clamp(24px, 4vw, 48px);
+  margin-top: 56px;
+  padding-top: 36px;
+  border-top: 1px solid rgba(42,37,32,0.08);
+  opacity: 0;
+  animation: fadeInUp 0.9s 3s forwards;
+  flex-wrap: wrap;
+}
+.hero-stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  color: var(--charcoal);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.hero-stat-label {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-light);
+}
+
+@media (max-width: 768px) {
+  .hero-deco { display: none; }
+  .hero-content { max-width: 100%; }
+}
+
+/* ========== SECTIONS BASE ========== */
+section { position: relative; z-index: 1; }
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--sage-dark);
+  margin-bottom: 16px;
+}
+.section-label::before {
+  content: '';
+  width: 32px; height: 1px;
+  background: var(--sage);
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 5vw, 60px);
+  font-weight: 700;
+  color: var(--charcoal);
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+.section-title em { font-style: italic; color: var(--sage-dark); }
+
+.section-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(16px, 2.2vw, 22px);
+  font-style: italic;
+  color: var(--text-light);
+  max-width: 560px;
+  line-height: 1.6;
+}
+
+/* ========== MARQUEE ========== */
+.marquee-strip {
+  background: var(--charcoal);
+  padding: 14px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border-top: 1px solid rgba(200,169,110,0.15);
+  border-bottom: 1px solid rgba(200,169,110,0.15);
+  position: relative;
+  z-index: 2;
+}
+.marquee-track {
+  display: inline-flex;
+  animation: marquee 25s linear infinite;
+  gap: 0;
+}
+.marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 32px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+.marquee-dot { color: var(--sage); font-size: 20px; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* ========== ADVANTAGES ========== */
+#advantages {
+  padding: clamp(80px, 10vw, 140px) clamp(20px, 5vw, 80px);
+  background: var(--warm-white);
+}
+
+.adv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: clamp(20px, 3vw, 36px);
+  margin-top: clamp(40px, 6vw, 72px);
+}
+
+.adv-card {
+  background: white;
+  border-radius: 20px;
+  padding: clamp(28px, 4vw, 44px) clamp(24px, 3vw, 36px);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease;
+  cursor: default;
+  border: 1px solid rgba(42,37,32,0.06);
+}
+.adv-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(168,197,176,0.08) 0%, rgba(200,169,110,0.06) 100%);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.adv-card:hover { transform: translateY(-8px); box-shadow: 0 24px 60px rgba(42,37,32,0.1); }
+.adv-card:hover::before { opacity: 1; }
+
+.adv-card-glow {
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.adv-card:hover .adv-card-glow { opacity: 1; }
+.adv-card:nth-child(1) .adv-card-glow { background: radial-gradient(circle, rgba(168,197,176,0.3), transparent); }
+.adv-card:nth-child(2) .adv-card-glow { background: radial-gradient(circle, rgba(200,169,110,0.25), transparent); }
+.adv-card:nth-child(3) .adv-card-glow { background: radial-gradient(circle, rgba(240,221,208,0.4), transparent); }
+.adv-card:nth-child(4) .adv-card-glow { background: radial-gradient(circle, rgba(122,158,135,0.3), transparent); }
+
+.adv-icon {
+  font-size: 42px;
+  margin-bottom: 20px;
+  display: block;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+.adv-card:hover .adv-icon { transform: scale(1.15) rotate(-5deg); }
+
+.adv-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(18px, 2.5vw, 24px);
+  font-weight: 700;
+  color: var(--charcoal);
+  margin-bottom: 12px;
+}
+.adv-text {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text-light);
+}
+.adv-line {
+  width: 40px; height: 2px;
+  background: linear-gradient(90deg, var(--sage), var(--gold));
+  border-radius: 2px;
+  margin-top: 20px;
+  transition: width 0.4s ease;
+}
+.adv-card:hover .adv-line { width: 70px; }
+
+/* Reveal animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ========== SERVICES ========== */
+#services {
+  padding: clamp(80px, 10vw, 140px) clamp(20px, 5vw, 80px);
+  background: var(--cream);
+  position: relative;
+}
+.services-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 50%;
+  background: linear-gradient(180deg, var(--warm-white), transparent);
+  pointer-events: none;
+}
+
+.services-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: clamp(40px, 6vw, 80px);
+  align-items: start;
+  margin-top: clamp(40px, 6vw, 72px);
+}
+@media (max-width: 900px) {
+  .services-layout { grid-template-columns: 1fr; }
+}
+
+.services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1.5px solid transparent;
+}
+.service-item:hover, .service-item.active {
+  background: white;
+  border-color: rgba(122,158,135,0.2);
+  box-shadow: 0 8px 30px rgba(42,37,32,0.07);
+}
+.service-icon { font-size: 24px; transition: transform 0.3s; }
+.service-item:hover .service-icon { transform: scale(1.2); }
+.service-item-text { font-size: 15px; font-weight: 500; color: var(--charcoal); }
+
+.services-detail {
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 4px 40px rgba(42,37,32,0.08);
+  min-height: 400px;
+}
+.service-detail-img {
+  width: 100%; height: 240px;
+  background: linear-gradient(135deg, var(--sage-light), var(--blush));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+  position: relative;
+  overflow: hidden;
+}
+.service-detail-img::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 70%, rgba(200,169,110,0.2), transparent 60%),
+              radial-gradient(circle at 80% 20%, rgba(168,197,176,0.3), transparent 50%);
+}
+.service-detail-emoji {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(60px, 10vw, 90px);
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+  animation: float 3s ease-in-out infinite;
+}
+.service-detail-body { padding: clamp(24px, 4vw, 40px); }
+.service-detail-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(22px, 3vw, 30px);
+  color: var(--charcoal);
+  margin-bottom: 12px;
+}
+.service-detail-desc {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--text-light);
+}
+.service-detail-tags {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px;
+}
+.service-tag {
+  background: rgba(122,158,135,0.1);
+  color: var(--sage-dark);
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(122,158,135,0.2);
+}
+
+/* ========== MENU / ASSORTMENT ========== */
+#menu {
+  padding: clamp(80px, 10vw, 140px) clamp(20px, 5vw, 80px);
+  background: var(--charcoal);
+  position: relative;
+  overflow: hidden;
+}
+.menu-bg-glow {
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(122,158,135,0.1), transparent 70%);
+  top: -200px; right: -200px;
+  pointer-events: none;
+}
+.menu-bg-glow2 {
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,169,110,0.08), transparent 70%);
+  bottom: -150px; left: -100px;
+  pointer-events: none;
+}
+
+#menu .section-label { color: var(--sage-light); }
+#menu .section-label::before { background: var(--sage); }
+#menu .section-title { color: white; }
+#menu .section-subtitle { color: rgba(255,255,255,0.5); }
+
+.menu-categories {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: clamp(30px, 5vw, 56px);
+  margin-bottom: clamp(30px, 5vw, 48px);
+}
+.cat-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0.05em;
+}
+.cat-btn.active, .cat-btn:hover {
+  background: rgba(122,158,135,0.25);
+  border-color: var(--sage);
+  color: var(--sage-light);
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: clamp(16px, 2.5vw, 24px);
+}
+
+.menu-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+  position: relative;
+  group: true;
+}
+.menu-card:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(122,158,135,0.35);
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.menu-card-img {
+  height: 140px;
+  background: linear-gradient(135deg, rgba(122,158,135,0.2), rgba(200,169,110,0.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  position: relative;
+  overflow: hidden;
+  transition: height 0.3s ease;
+}
+.menu-card:hover .menu-card-img { height: 160px; }
+.menu-card-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(42,37,32,0.15), transparent);
+}
+.menu-card-body { padding: 18px 20px 22px; }
+.menu-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  color: white;
+  margin-bottom: 6px;
+}
+.menu-card-desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.6;
+}
+.menu-card-price {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+.menu-card-badge {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: var(--gold);
+  color: var(--charcoal);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+/* ========== HOURS BANNER ========== */
+.hours-banner {
+  background: linear-gradient(135deg, var(--sage-dark) 0%, #3a6b50 100%);
+  padding: clamp(40px, 6vw, 80px) clamp(20px, 5vw, 80px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 30px;
+  position: relative;
+  overflow: hidden;
+}
+.hours-banner::before {
+  content: '🕗';
+  position: absolute;
+  right: 5%; top: 50%;
+  transform: translateY(-50%);
+  font-size: clamp(80px, 15vw, 200px);
+  opacity: 0.05;
+  pointer-events: none;
+}
+.hours-text { color: white; }
+.hours-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(22px, 4vw, 40px);
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.hours-sub { font-size: clamp(14px, 2vw, 18px); opacity: 0.8; }
+.hours-time {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 24px 36px;
+  color: white;
+  text-align: center;
+}
+.hours-time-big {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 700;
+  color: var(--gold-light);
+  display: block;
+  line-height: 1;
+}
+.hours-time-label { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.7; margin-top: 6px; }
+.hours-365 {
+  background: var(--gold);
+  color: var(--charcoal);
+  padding: clamp(14px, 2vw, 20px) clamp(20px, 3vw, 36px);
+  border-radius: 14px;
+  font-size: clamp(14px, 2vw, 18px);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+/* ========== MAP ========== */
+#contact {
+  padding: clamp(60px, 8vw, 100px) clamp(20px, 5vw, 80px);
+  background: var(--warm-white);
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: clamp(40px, 6vw, 80px);
+  margin-top: clamp(40px, 6vw, 72px);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .contact-grid { grid-template-columns: 1fr; }
+}
+
+.contact-info { }
+.contact-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding: 20px 22px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid rgba(42,37,32,0.06);
+  transition: box-shadow 0.3s;
+}
+.contact-block:hover { box-shadow: 0 8px 30px rgba(42,37,32,0.08); }
+.contact-block-icon { font-size: 24px; flex-shrink: 0; }
+.contact-block-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sage-dark);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.contact-block-value { font-size: 15px; color: var(--charcoal); font-weight: 400; }
+.contact-block-value a { color: var(--charcoal); text-decoration: none; transition: color 0.3s; }
+.contact-block-value a:hover { color: var(--sage-dark); }
+
+.map-wrapper {
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 8px 50px rgba(42,37,32,0.12);
+  border: 1px solid rgba(42,37,32,0.06);
+  height: 420px;
+  position: relative;
+}
+.map-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  filter: saturate(0.85) contrast(1.05);
+  transition: filter 0.4s;
+}
+.map-wrapper:hover iframe { filter: saturate(1) contrast(1); }
+
+/* ========== FOOTER ========== */
+footer {
+  background: var(--charcoal);
+  padding: clamp(50px, 8vw, 90px) clamp(20px, 5vw, 80px) clamp(30px, 4vw, 50px);
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: clamp(30px, 5vw, 60px);
+  margin-bottom: 48px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+@media (max-width: 768px) {
+  .footer-top { grid-template-columns: 1fr; }
+}
+.footer-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  color: white;
+  margin-bottom: 14px;
+}
+.footer-brand em { color: var(--sage-light); font-style: italic; }
+.footer-desc { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.8; max-width: 300px; }
+.footer-col-title {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+.footer-col a {
+  display: block;
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  margin-bottom: 10px;
+  transition: color 0.3s;
+}
+.footer-col a:hover { color: white; }
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-copy { font-size: 13px; color: rgba(255,255,255,0.3); }
+.footer-heart { color: var(--gold); }
+
+/* ========== ANIMATIONS ========== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Scroll indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  animation: fadeInUp 0.8s 3.2s forwards;
+}
+.scroll-mouse {
+  width: 22px; height: 36px;
+  border: 2px solid rgba(42,37,32,0.25);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  padding-top: 6px;
+}
+.scroll-wheel {
+  width: 3px; height: 8px;
+  background: var(--sage);
+  border-radius: 2px;
+  animation: scrollWheel 2s ease-in-out infinite;
+}
+@keyframes scrollWheel {
+  0% { transform: translateY(0); opacity: 1; }
+  70% { transform: translateY(10px); opacity: 0; }
+  71% { transform: translateY(0); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.scroll-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-light); }
+
+/* ========== LANGUAGE DATA HIDING ========== */
+[data-lang] { display: none; }
+[data-lang].active-lang { display: block; }
+span[data-lang].active-lang { display: inline; }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 480px) {
+  .hero-cta { flex-direction: column; }
+  .btn-primary, .btn-outline { justify-content: center; }
+  .hours-banner { flex-direction: column; text-align: center; }
+  .hours-banner::before { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Particle canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="loader-croissant">🥐</div>
+  <div class="loader-text">Petite France</div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<!-- Mobile nav -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#hero" onclick="closeMobileNav()" data-lang="cs" class="active-lang">Úvod</a>
+  <a href="#hero" onclick="closeMobileNav()" data-lang="en">Home</a>
+  <a href="#hero" onclick="closeMobileNav()" data-lang="de">Start</a>
+  <a href="#hero" onclick="closeMobileNav()" data-lang="ru">Главная</a>
+
+  <a href="#advantages" onclick="closeMobileNav()" data-lang="cs" class="active-lang">Výhody</a>
+  <a href="#advantages" onclick="closeMobileNav()" data-lang="en">Advantages</a>
+  <a href="#advantages" onclick="closeMobileNav()" data-lang="de">Vorteile</a>
+  <a href="#advantages" onclick="closeMobileNav()" data-lang="ru">Преимущества</a>
+
+  <a href="#services" onclick="closeMobileNav()" data-lang="cs" class="active-lang">Služby</a>
+  <a href="#services" onclick="closeMobileNav()" data-lang="en">Services</a>
+  <a href="#services" onclick="closeMobileNav()" data-lang="de">Leistungen</a>
+  <a href="#services" onclick="closeMobileNav()" data-lang="ru">Услуги</a>
+
+  <a href="#menu" onclick="closeMobileNav()" data-lang="cs" class="active-lang">Nabídka</a>
+  <a href="#menu" onclick="closeMobileNav()" data-lang="en">Menu</a>
+  <a href="#menu" onclick="closeMobileNav()" data-lang="de">Angebot</a>
+  <a href="#menu" onclick="closeMobileNav()" data-lang="ru">Меню</a>
+
+  <a href="#contact" onclick="closeMobileNav()" data-lang="cs" class="active-lang">Kontakt</a>
+  <a href="#contact" onclick="closeMobileNav()" data-lang="en">Contact</a>
+  <a href="#contact" onclick="closeMobileNav()" data-lang="de">Kontakt</a>
+  <a href="#contact" onclick="closeMobileNav()" data-lang="ru">Контакты</a>
+
+  <div class="lang-switcher" style="margin-top:12px">
+    <button class="lang-btn active" onclick="setLang('cs')">CS</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('de')">DE</button>
+    <button class="lang-btn" onclick="setLang('ru')">RU</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a href="#hero" class="nav-logo">🥐 <span>Petite</span> France</a>
+  <ul class="nav-links">
+    <li><a href="#advantages">
+      <span data-lang="cs" class="active-lang">Výhody</span>
+      <span data-lang="en">Advantages</span>
+      <span data-lang="de">Vorteile</span>
+      <span data-lang="ru">Преимущества</span>
+    </a></li>
+    <li><a href="#services">
+      <span data-lang="cs" class="active-lang">Služby</span>
+      <span data-lang="en">Services</span>
+      <span data-lang="de">Leistungen</span>
+      <span data-lang="ru">Услуги</span>
+    </a></li>
+    <li><a href="#menu">
+      <span data-lang="cs" class="active-lang">Nabídka</span>
+      <span data-lang="en">Menu</span>
+      <span data-lang="de">Angebot</span>
+      <span data-lang="ru">Меню</span>
+    </a></li>
+    <li><a href="#contact">
+      <span data-lang="cs" class="active-lang">Kontakt</span>
+      <span data-lang="en">Contact</span>
+      <span data-lang="de">Kontakt</span>
+      <span data-lang="ru">Контакты</span>
+    </a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="lang-switcher" id="desktopLang">
+      <button class="lang-btn active" onclick="setLang('cs')">CS</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('de')">DE</button>
+      <button class="lang-btn" onclick="setLang('ru')">RU</button>
+    </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMobileNav()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-pattern"></div>
+
+  <div class="hero-content">
+    <div class="hero-label">
+      <span data-lang="cs" class="active-lang">🇫🇷 Tradiční francouzská pekárna · Praha</span>
+      <span data-lang="en">🇫🇷 Traditional French Bakery · Prague</span>
+      <span data-lang="de">🇫🇷 Traditionelle französische Bäckerei · Prag</span>
+      <span data-lang="ru">🇫🇷 Традиционная французская пекарня · Прага</span>
+    </div>
+
+    <h1 class="hero-title">
+      <span data-lang="cs" class="active-lang">Petite<em>France</em></span>
+      <span data-lang="en">Petite<em>France</em></span>
+      <span data-lang="de">Petite<em>France</em></span>
+      <span data-lang="ru">Petite<em>France</em></span>
+    </h1>
+
+    <p class="hero-subtitle">
+      <span data-lang="cs" class="active-lang">Boulangerie &amp; Pâtisserie — řemeslné pečení s francouzskou duší</span>
+      <span data-lang="en">Boulangerie &amp; Pâtisserie — artisan baking with a French soul</span>
+      <span data-lang="de">Boulangerie &amp; Pâtisserie — handwerkliches Backen mit französischer Seele</span>
+      <span data-lang="ru">Boulangerie &amp; Pâtisserie — ремесленная выпечка с французской душой</span>
+    </p>
+
+    <p class="hero-desc">
+      <span data-lang="cs" class="active-lang">Vše je ručně vyráběno v naší vlastní pekárně v Praze. Používáme francouzskou mouku, tradiční receptury a moderní pekařské technologie přivezené přímo z Francie.</span>
+      <span data-lang="en">Everything is handmade in our own Prague bakery. We use French flour, traditional recipes and artisan baking techniques brought straight from France.</span>
+      <span data-lang="de">Alles wird in unserer eigenen Prager Bäckerei von Hand hergestellt. Wir verwenden französisches Mehl, traditionelle Rezepte und Handwerkstechniken direkt aus Frankreich.</span>
+      <span data-lang="ru">Всё изготавливается вручную на нашей собственной пекарне в Праге. Мы используем французскую муку, традиционные рецепты и ремесленные технологии, привезённые прямо из Франции.</span>
+    </p>
+
+    <div class="hero-cta">
+      <a href="#menu" class="btn-primary">
+        <span>
+          <span data-lang="cs" class="active-lang">Prozkoumat nabídku</span>
+          <span data-lang="en">Explore Menu</span>
+          <span data-lang="de">Angebot entdecken</span>
+          <span data-lang="ru">Смотреть меню</span>
+        </span>
+        <span>→</span>
+      </a>
+      <a href="#contact" class="btn-outline">
+        <span data-lang="cs" class="active-lang">Kde nás najdete</span>
+        <span data-lang="en">Find Us</span>
+        <span data-lang="de">Uns finden</span>
+        <span data-lang="ru">Как нас найти</span>
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-num">365</div>
+        <div class="hero-stat-label">
+          <span data-lang="cs" class="active-lang">Dní v roce</span>
+          <span data-lang="en">Days/year</span>
+          <span data-lang="de">Tage/Jahr</span>
+          <span data-lang="ru">Дней в году</span>
+        </div>
+      </div>
+      <div>
+        <div class="hero-stat-num">8–20</div>
+        <div class="hero-stat-label">
+          <span data-lang="cs" class="active-lang">Otevírací hodiny</span>
+          <span data-lang="en">Open Hours</span>
+          <span data-lang="de">Öffnungszeiten</span>
+          <span data-lang="ru">Часы работы</span>
+        </div>
+      </div>
+      <div>
+        <div class="hero-stat-num">100%</div>
+        <div class="hero-stat-label">
+          <span data-lang="cs" class="active-lang">Ručně vyrobeno</span>
+          <span data-lang="en">Handmade</span>
+          <span data-lang="de">Handgemacht</span>
+          <span data-lang="ru">Ручная работа</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-deco">
+    <div class="hero-deco-circle">
+      <div class="hero-deco-ring"></div>
+      <div class="hero-deco-dots"></div>
+      <div class="hero-deco-inner">🥐</div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+    <div class="scroll-label">scroll</div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-strip">
+  <div class="marquee-track" id="marqueeTrack"></div>
+</div>
+
+<!-- ADVANTAGES -->
+<section id="advantages">
+  <div class="reveal">
+    <div class="section-label">
+      <span data-lang="cs" class="active-lang">Proč my</span>
+      <span data-lang="en">Why Us</span>
+      <span data-lang="de">Warum wir</span>
+      <span data-lang="ru">Почему мы</span>
+    </div>
+    <h2 class="section-title">
+      <span data-lang="cs" class="active-lang">Naše <em>výhody</em></span>
+      <span data-lang="en">Our <em>advantages</em></span>
+      <span data-lang="de">Unsere <em>Vorteile</em></span>
+      <span data-lang="ru">Наши <em>преимущества</em></span>
+    </h2>
+    <p class="section-subtitle">
+      <span data-lang="cs" class="active-lang">Pečeme s láskou každý den, protože věříme, že skvělé pečivo začíná skvělými ingrediencemi.</span>
+      <span data-lang="en">We bake with love every day, because we believe great pastry starts with great ingredients.</span>
+      <span data-lang="de">Wir backen täglich mit Leidenschaft, weil wir glauben, dass erstklassiges Gebäck mit erstklassigen Zutaten beginnt.</span>
+      <span data-lang="ru">Мы печём с любовью каждый день, потому что уверены: отличная выпечка начинается с отличных ингредиентов.</span>
+    </p>
+  </div>
+
+  <div class="adv-grid">
+    <div class="adv-card reveal reveal-delay-1">
+      <div class="adv-card-glow"></div>
+      <span class="adv-icon">🌾</span>
+      <div class="adv-title">
+        <span data-lang="cs" class="active-lang">Francouzská mouka</span>
+        <span data-lang="en">French Flour</span>
+        <span data-lang="de">Französisches Mehl</span>
+        <span data-lang="ru">Французская мука</span>
+      </div>
+      <p class="adv-text">
+        <span data-lang="cs" class="active-lang">Používáme originální francouzskou mouku kombinovanou se speciálně mletou českou moukou pro dokonalou texturu.</span>
+        <span data-lang="en">We use original French flour combined with specially milled Czech flour for perfect texture.</span>
+        <span data-lang="de">Wir verwenden original französisches Mehl kombiniert mit speziell gemahlenem tschechischem Mehl für perfekte Textur.</span>
+        <span data-lang="ru">Мы используем оригинальную французскую муку в сочетании со специально смолотой чешской мукой для идеальной текстуры.</span>
+      </p>
+      <div class="adv-line"></div>
+    </div>
+
+    <div class="adv-card reveal reveal-delay-2">
+      <div class="adv-card-glow"></div>
+      <span class="adv-icon">🤲</span>
+      <div class="adv-title">
+        <span data-lang="cs" class="active-lang">Ruční výroba</span>
+        <span data-lang="en">Handmade</span>
+        <span data-lang="de">Handgemacht</span>
+        <span data-lang="ru">Ручное производство</span>
+      </div>
+      <p class="adv-text">
+        <span data-lang="cs" class="active-lang">Veškeré pečivo a cukrovinky jsou ručně vyrobeny přímo v naší pražské pekárně každou noc.</span>
+        <span data-lang="en">All pastries and confectionery are handmade in our own Prague bakery every night.</span>
+        <span data-lang="de">Alle Backwaren und Süßwaren werden jede Nacht in unserer eigenen Prager Bäckerei von Hand hergestellt.</span>
+        <span data-lang="ru">Всё выпечное и кондитерское производится вручную в нашей пражской пекарне каждую ночь.</span>
+      </p>
+      <div class="adv-line"></div>
+    </div>
+
+    <div class="adv-card reveal reveal-delay-3">
+      <div class="adv-card-glow"></div>
+      <span class="adv-icon">📅</span>
+      <div class="adv-title">
+        <span data-lang="cs" class="active-lang">Otevřeno 365 dní</span>
+        <span data-lang="en">Open 365 Days</span>
+        <span data-lang="de">365 Tage geöffnet</span>
+        <span data-lang="ru">Открыто 365 дней</span>
+      </div>
+      <p class="adv-text">
+        <span data-lang="cs" class="active-lang">Jsme tu pro vás každý den v roce, i o svátcích a Vánocích. Od 8:00 do 20:00 bez výjimky.</span>
+        <span data-lang="en">We are here for you every day of the year, including holidays and Christmas. From 8:00 to 20:00 without exception.</span>
+        <span data-lang="de">Wir sind für Sie jeden Tag im Jahr da, auch an Feiertagen und Weihnachten. Von 8:00 bis 20:00 Uhr ohne Ausnahme.</span>
+        <span data-lang="ru">Мы здесь для вас каждый день в году, включая праздники и Рождество. С 8:00 до 20:00 без исключений.</span>
+      </p>
+      <div class="adv-line"></div>
+    </div>
+
+    <div class="adv-card reveal reveal-delay-4">
+      <div class="adv-card-glow"></div>
+      <span class="adv-icon">🚚</span>
+      <div class="adv-title">
+        <span data-lang="cs" class="active-lang">Rozvoz po Praze</span>
+        <span data-lang="en">Prague Delivery</span>
+        <span data-lang="de">Lieferung in Prag</span>
+        <span data-lang="ru">Доставка по Праге</span>
+      </div>
+      <p class="adv-text">
+        <span data-lang="cs" class="active-lang">Rozvážíme naše pečivo do prvotřídních hotelů, restaurací a firem po celé Praze každé ráno čerstvé.</span>
+        <span data-lang="en">We deliver our pastries to top hotels, restaurants, and businesses across Prague fresh every morning.</span>
+        <span data-lang="de">Wir liefern unsere Backwaren täglich frisch an erstklassige Hotels, Restaurants und Unternehmen in ganz Prag.</span>
+        <span data-lang="ru">Мы доставляем нашу выпечку в первоклассные отели, рестораны и компании по всей Праге каждое утро свежей.</span>
+      </p>
+      <div class="adv-line"></div>
+    </div>
+
+    <div class="adv-card reveal reveal-delay-5">
+      <div class="adv-card-glow"></div>
+      <span class="adv-icon">🎨</span>
+      <div class="adv-title">
+        <span data-lang="cs" class="active-lang">Kouzelná atmosféra</span>
+        <span data-lang="en">Magical Atmosphere</span>
+        <span data-lang="de">Magische Atmosphäre</span>
+        <span data-lang="ru">Волшебная атмосфера</span>
+      </div>
+      <p class="adv-text">
+        <span data-lang="cs" class="active-lang">Naše světle zelená fasáda a tradiční interiér vás přenese přímo do srdce Paříže uprostřed Prahy.</span>
+        <span data-lang="en">Our mint green facade and traditional interior transport you straight to the heart of Paris in the middle of Prague.</span>
+        <span data-lang="de">Unsere mintgrüne Fassade und traditionelle Einrichtung entführen Sie mitten in Prag direkt ins Herz von Paris.</span>
+        <span data-lang="ru">Наш зелёный фасад и традиционный интерьер перенесут вас прямо в сердце Парижа посреди Праги.</span>
+      </p>
+      <div class="adv-line"></div>
+    </div>
+
+    <div class="adv-card reveal reveal-delay-1">
+      <div class="adv-card-glow"></div>
+      <span class="adv-icon">☕</span>
+      <div class="adv-title">
+        <span data-lang="cs" class="active-lang">Kavárna &amp; posezení</span>
+        <span data-lang="en">Café &amp; Seating</span>
+        <span data-lang="de">Café &amp; Sitzbereich</span>
+        <span data-lang="ru">Кафе и посадочные места</span>
+      </div>
+      <p class="adv-text">
+        <span data-lang="cs" class="active-lang">Vychutnejte si snídani, kávu nebo sklenku vína s venkovním sezením a příjemnou obsluhou.</span>
+        <span data-lang="en">Enjoy breakfast, coffee, or a glass of wine with outdoor seating and friendly service.</span>
+        <span data-lang="de">Genießen Sie Frühstück, Kaffee oder ein Glas Wein bei Außensitzplätzen und freundlichem Service.</span>
+        <span data-lang="ru">Насладитесь завтраком, кофе или бокалом вина на открытой террасе с приятным обслуживанием.</span>
+      </p>
+      <div class="adv-line"></div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="services-bg"></div>
+  <div style="position:relative;z-index:1">
+    <div class="reveal">
+      <div class="section-label">
+        <span data-lang="cs" class="active-lang">Co nabízíme</span>
+        <span data-lang="en">What We Offer</span>
+        <span data-lang="de">Was wir anbieten</span>
+        <span data-lang="ru">Что мы предлагаем</span>
+      </div>
+      <h2 class="section-title">
+        <span data-lang="cs" class="active-lang">Naše <em>služby</em></span>
+        <span data-lang="en">Our <em>services</em></span>
+        <span data-lang="de">Unsere <em>Leistungen</em></span>
+        <span data-lang="ru">Наши <em>услуги</em></span>
+      </h2>
+    </div>
+
+    <div class="services-layout reveal reveal-delay-2">
+      <div class="services-list">
+        <div class="service-item active" onclick="selectService(0)" data-service="0">
+          <span class="service-icon">🥐</span>
+          <span class="service-item-text">
+            <span data-lang="cs" class="active-lang">Francouzské pečivo</span>
+            <span data-lang="en">French Pastries</span>
+            <span data-lang="de">Französisches Gebäck</span>
+            <span data-lang="ru">Французская выпечка</span>
+          </span>
+        </div>
+        <div class="service-item" onclick="selectService(1)" data-service="1">
+          <span class="service-icon">🎂</span>
+          <span class="service-item-text">
+            <span data-lang="cs" class="active-lang">Dorty &amp; cukrovinky</span>
+            <span data-lang="en">Cakes &amp; Confectionery</span>
+            <span data-lang="de">Torten &amp; Süßwaren</span>
+            <span data-lang="ru">Торты и кондитерские изделия</span>
+          </span>
+        </div>
+        <div class="service-item" onclick="selectService(2)" data-service="2">
+          <span class="service-icon">🍞</span>
+          <span class="service-item-text">
+            <span data-lang="cs" class="active-lang">Řemeslný chléb</span>
+            <span data-lang="en">Artisan Bread</span>
+            <span data-lang="de">Handwerksbrot</span>
+            <span data-lang="ru">Ремесленный хлеб</span>
+          </span>
+        </div>
+        <div class="service-item" onclick="selectService(3)" data-service="3">
+          <span class="service-icon">☕</span>
+          <span class="service-item-text">
+            <span data-lang="cs" class="active-lang">Kavárna &amp; snídaně</span>
+            <span data-lang="en">Café &amp; Breakfast</span>
+            <span data-lang="de">Café &amp; Frühstück</span>
+            <span data-lang="ru">Кафе и завтраки</span>
+          </span>
+        </div>
+        <div class="service-item" onclick="selectService(4)" data-service="4">
+          <span class="service-icon">🚚</span>
+          <span class="service-item-text">
+            <span data-lang="cs" class="active-lang">Catering &amp; rozvoz</span>
+            <span data-lang="en">Catering &amp; Delivery</span>
+            <span data-lang="de">Catering &amp; Lieferung</span>
+            <span data-lang="ru">Кейтеринг и доставка</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="services-detail">
+        <div class="service-detail-img">
+          <div class="service-detail-emoji" id="serviceEmoji">🥐</div>
+        </div>
+        <div class="service-detail-body">
+          <div class="service-detail-title" id="serviceTitle"></div>
+          <p class="service-detail-desc" id="serviceDesc"></p>
+          <div class="service-detail-tags" id="serviceTags"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu">
+  <div class="menu-bg-glow"></div>
+  <div class="menu-bg-glow2"></div>
+  <div style="position:relative;z-index:1">
+    <div class="reveal">
+      <div class="section-label">
+        <span data-lang="cs" class="active-lang">Sortiment</span>
+        <span data-lang="en">Assortment</span>
+        <span data-lang="de">Sortiment</span>
+        <span data-lang="ru">Ассортимент</span>
+      </div>
+      <h2 class="section-title">
+        <span data-lang="cs" class="active-lang">Naše <em>nabídka</em></span>
+        <span data-lang="en">Our <em>selection</em></span>
+        <span data-lang="de">Unser <em>Angebot</em></span>
+        <span data-lang="ru">Наш <em>ассортимент</em></span>
+      </h2>
+      <p class="section-subtitle">
+        <span data-lang="cs" class="active-lang">Pečeme čerstvě každou noc — každé ráno vás čeká nová dávka dokonalých dobrot.</span>
+        <span data-lang="en">Baked fresh every night — each morning brings a new batch of perfect treats.</span>
+        <span data-lang="de">Jede Nacht frisch gebacken — jeden Morgen gibt es eine neue Ladung perfekter Leckereien.</span>
+        <span data-lang="ru">Выпекается свежим каждую ночь — каждое утро вас ждёт новая партия идеальных лакомств.</span>
+      </p>
+    </div>
+
+    <div class="menu-categories" id="menuCategories"></div>
+    <div class="menu-grid reveal reveal-delay-2" id="menuGrid"></div>
+  </div>
+</section>
+
+<!-- HOURS BANNER -->
+<div class="hours-banner reveal">
+  <div class="hours-text">
+    <div class="hours-title">
+      <span data-lang="cs" class="active-lang">Jsme tu pro vás každý den</span>
+      <span data-lang="en">We're here for you every day</span>
+      <span data-lang="de">Wir sind jeden Tag für Sie da</span>
+      <span data-lang="ru">Мы здесь для вас каждый день</span>
+    </div>
+    <div class="hours-sub">
+      <span data-lang="cs" class="active-lang">365 dní v roce, bez výjimky</span>
+      <span data-lang="en">365 days a year, without exception</span>
+      <span data-lang="de">365 Tage im Jahr, ohne Ausnahme</span>
+      <span data-lang="ru">365 дней в году, без исключений</span>
+    </div>
+  </div>
+  <div class="hours-time">
+    <span class="hours-time-big">8:00 – 20:00</span>
+    <div class="hours-time-label">
+      <span data-lang="cs" class="active-lang">Pondělí – Neděle</span>
+      <span data-lang="en">Monday – Sunday</span>
+      <span data-lang="de">Montag – Sonntag</span>
+      <span data-lang="ru">Понедельник – Воскресенье</span>
+    </div>
+  </div>
+  <div class="hours-365">365 🎉</div>
+</div>
+
+<!-- CONTACT + MAP -->
+<section id="contact">
+  <div class="reveal">
+    <div class="section-label">
+      <span data-lang="cs" class="active-lang">Kde nás najdete</span>
+      <span data-lang="en">Find Us</span>
+      <span data-lang="de">Uns finden</span>
+      <span data-lang="ru">Как нас найти</span>
+    </div>
+    <h2 class="section-title">
+      <span data-lang="cs" class="active-lang">Kontakt &amp; <em>adresa</em></span>
+      <span data-lang="en">Contact &amp; <em>address</em></span>
+      <span data-lang="de">Kontakt &amp; <em>Adresse</em></span>
+      <span data-lang="ru">Контакт &amp; <em>адрес</em></span>
+    </h2>
+  </div>
+
+  <div class="contact-grid">
+    <div class="contact-info">
+      <div class="contact-block reveal reveal-delay-1">
+        <div class="contact-block-icon">📍</div>
+        <div>
+          <div class="contact-block-label">
+            <span data-lang="cs" class="active-lang">Adresa</span>
+            <span data-lang="en">Address</span>
+            <span data-lang="de">Adresse</span>
+            <span data-lang="ru">Адрес</span>
+          </div>
+          <div class="contact-block-value">Myslíkova 185/19, Praha 2, 120 00</div>
+        </div>
+      </div>
+      <div class="contact-block reveal reveal-delay-2">
+        <div class="contact-block-icon">📞</div>
+        <div>
+          <div class="contact-block-label">
+            <span data-lang="cs" class="active-lang">Telefon</span>
+            <span data-lang="en">Phone</span>
+            <span data-lang="de">Telefon</span>
+            <span data-lang="ru">Телефон</span>
+          </div>
+          <div class="contact-block-value"><a href="tel:+420702146966">+420 702 146 966</a></div>
+        </div>
+      </div>
+      <div class="contact-block reveal reveal-delay-3">
+        <div class="contact-block-icon">🕗</div>
+        <div>
+          <div class="contact-block-label">
+            <span data-lang="cs" class="active-lang">Otevírací hodiny</span>
+            <span data-lang="en">Opening Hours</span>
+            <span data-lang="de">Öffnungszeiten</span>
+            <span data-lang="ru">Часы работы</span>
+          </div>
+          <div class="contact-block-value">
+            <span data-lang="cs" class="active-lang">Po–Ne: 8:00 – 20:00 (365 dní)</span>
+            <span data-lang="en">Mon–Sun: 8:00 – 20:00 (365 days)</span>
+            <span data-lang="de">Mo–So: 8:00 – 20:00 (365 Tage)</span>
+            <span data-lang="ru">Пн–Вс: 8:00 – 20:00 (365 дней)</span>
+          </div>
+        </div>
+      </div>
+      <div class="contact-block reveal reveal-delay-4">
+        <div class="contact-block-icon">🚇</div>
+        <div>
+          <div class="contact-block-label">
+            <span data-lang="cs" class="active-lang">Jak se dostat</span>
+            <span data-lang="en">Getting Here</span>
+            <span data-lang="de">Anreise</span>
+            <span data-lang="ru">Как добраться</span>
+          </div>
+          <div class="contact-block-value">
+            <span data-lang="cs" class="active-lang">Metro B – Karlovo náměstí (5 min pěšky)</span>
+            <span data-lang="en">Metro B – Karlovo náměstí (5 min walk)</span>
+            <span data-lang="de">Metro B – Karlovo náměstí (5 Min. zu Fuß)</span>
+            <span data-lang="ru">Метро B – Karlovo náměstí (5 мин пешком)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-wrapper reveal reveal-delay-2">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2560.5!2d14.417829!3d50.0777662!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x470beb2bca56198d%3A0x2ea63f9dfea51a17!2sPetite%20France%20Bakery%20and%20Confectionery!5e0!3m2!1sen!2scz!4v1700000000000!5m2!1sen!2scz"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Petite France map">
+      </iframe>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand">🥐 Petite <em>France</em></div>
+      <p class="footer-desc">
+        <span data-lang="cs" class="active-lang">Tradiční francouzská pekárna a cukrárna v srdci Prahy. Pečeme s láskou každý den.</span>
+        <span data-lang="en">Traditional French bakery and confectionery in the heart of Prague. Baking with love every day.</span>
+        <span data-lang="de">Traditionelle französische Bäckerei und Konditorei im Herzen Prags. Täglich mit Liebe gebacken.</span>
+        <span data-lang="ru">Традиционная французская пекарня и кондитерская в сердце Праги. Выпекаем с любовью каждый день.</span>
+      </p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">
+        <span data-lang="cs" class="active-lang">Navigace</span>
+        <span data-lang="en">Navigation</span>
+        <span data-lang="de">Navigation</span>
+        <span data-lang="ru">Навигация</span>
+      </div>
+      <a href="#advantages">
+        <span data-lang="cs" class="active-lang">Výhody</span>
+        <span data-lang="en">Advantages</span>
+        <span data-lang="de">Vorteile</span>
+        <span data-lang="ru">Преимущества</span>
+      </a>
+      <a href="#services">
+        <span data-lang="cs" class="active-lang">Služby</span>
+        <span data-lang="en">Services</span>
+        <span data-lang="de">Leistungen</span>
+        <span data-lang="ru">Услуги</span>
+      </a>
+      <a href="#menu">
+        <span data-lang="cs" class="active-lang">Nabídka</span>
+        <span data-lang="en">Menu</span>
+        <span data-lang="de">Angebot</span>
+        <span data-lang="ru">Меню</span>
+      </a>
+      <a href="#contact">
+        <span data-lang="cs" class="active-lang">Kontakt</span>
+        <span data-lang="en">Contact</span>
+        <span data-lang="de">Kontakt</span>
+        <span data-lang="ru">Контакт</span>
+      </a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">
+        <span data-lang="cs" class="active-lang">Kontakt</span>
+        <span data-lang="en">Contact</span>
+        <span data-lang="de">Kontakt</span>
+        <span data-lang="ru">Контакты</span>
+      </div>
+      <a href="tel:+420702146966">+420 702 146 966</a>
+      <a href="#">Myslíkova 185/19, Praha 2</a>
+      <a href="#">8:00 – 20:00 · 365 dní</a>
+      <a href="#">Facebook · Instagram</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 Petite France · Praha · Made with <span class="footer-heart">♥</span></div>
+    <div class="footer-copy">Boulangerie &amp; Pâtisserie</div>
+  </div>
+</footer>
+
+<script>
+// ========== LANG SYSTEM ==========
+let currentLang = 'cs';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    el.classList.toggle('active-lang', el.getAttribute('data-lang') === lang);
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === lang);
+  });
+  document.documentElement.lang = lang;
+  updateDynamicContent();
+}
+
+// ========== LOADER ==========
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+  }, 2000);
+});
+
+// ========== CURSOR ==========
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+document.addEventListener('mousemove', e => {
+  dot.style.left = e.clientX + 'px';
+  dot.style.top = e.clientY + 'px';
+  ring.style.left = e.clientX + 'px';
+  ring.style.top = e.clientY + 'px';
+});
+document.querySelectorAll('a, button, .adv-card, .menu-card, .service-item').forEach(el => {
+  el.addEventListener('mouseenter', () => { ring.style.width = '56px'; ring.style.height = '56px'; ring.style.borderColor = 'var(--gold)'; });
+  el.addEventListener('mouseleave', () => { ring.style.width = '36px'; ring.style.height = '36px'; ring.style.borderColor = 'var(--sage)'; });
+});
+
+// ========== NAV SCROLL ==========
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// ========== MOBILE NAV ==========
+function toggleMobileNav() {
+  const nav = document.getElementById('mobileNav');
+  const ham = document.getElementById('hamburger');
+  const open = !nav.classList.contains('open');
+  nav.style.display = 'flex';
+  setTimeout(() => nav.classList.toggle('open', open), 10);
+  ham.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+function closeMobileNav() {
+  const nav = document.getElementById('mobileNav');
+  const ham = document.getElementById('hamburger');
+  nav.classList.remove('open');
+  ham.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ========== PARTICLES ==========
+const canvas = document.getElementById('particles-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const EMOJIS = ['🥐','✨','🌸','🫐','🍓','🌿','⭐','🥖','🍋'];
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height + canvas.height;
+    this.vx = (Math.random() - 0.5) * 0.4;
+    this.vy = -(Math.random() * 0.5 + 0.2);
+    this.size = Math.random() * 14 + 8;
+    this.opacity = Math.random() * 0.12 + 0.04;
+    this.emoji = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+    this.rot = Math.random() * Math.PI * 2;
+    this.rotSpeed = (Math.random() - 0.5) * 0.01;
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy; this.rot += this.rotSpeed;
+    if (this.y < -50) this.reset();
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.opacity;
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.rot);
+    ctx.font = `${this.size}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(this.emoji, 0, 0);
+    ctx.restore();
+  }
+}
+
+for (let i = 0; i < 30; i++) {
+  const p = new Particle();
+  p.y = Math.random() * canvas.height;
+  particles.push(p);
+}
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ========== MARQUEE ==========
+const marqueeItems = {
+  cs: ['🥐 Croissanty', '🍞 Bagety', '🎂 Dorty', '☕ Kavárna', '🌾 Francouzská mouka', '🤲 Ručně vyrobeno', '🚚 Rozvoz po Praze', '🥖 Chleby', '🫐 Tartelettes', '🍋 Citronový koláč'],
+  en: ['🥐 Croissants', '🍞 Baguettes', '🎂 Cakes', '☕ Café', '🌾 French Flour', '🤲 Handmade', '🚚 Prague Delivery', '🥖 Breads', '🫐 Tartelettes', '🍋 Lemon Tart'],
+  de: ['🥐 Croissants', '🍞 Baguettes', '🎂 Torten', '☕ Café', '🌾 Französisches Mehl', '🤲 Handgemacht', '🚚 Lieferung Prag', '🥖 Brote', '🫐 Tartelettes', '🍋 Zitronentarte'],
+  ru: ['🥐 Круассаны', '🍞 Багеты', '🎂 Торты', '☕ Кафе', '🌾 Французская мука', '🤲 Ручная работа', '🚚 Доставка по Праге', '🥖 Хлеба', '🫐 Тарталетки', '🍋 Лимонный пирог'],
+};
+
+function buildMarquee(lang) {
+  const items = marqueeItems[lang];
+  const doubled = [...items, ...items, ...items, ...items];
+  const track = document.getElementById('marqueeTrack');
+  track.innerHTML = doubled.map(t => `<span class="marquee-item">${t}<span class="marquee-dot">·</span></span>`).join('');
+}
+buildMarquee('cs');
+
+// ========== SERVICE DETAILS ==========
+const servicesData = {
+  cs: [
+    { emoji:'🥐', title:'Francouzské pečivo', desc:'Originální croissanty (máslo, čokoláda, mandle), muffiny, eclairs, palmiers, canelés a mnoho dalšího. Vše čerstvé, ručně tvarované.', tags:['Croissanty','Eclairs','Palmiers','Muffiny','Canelé'] },
+    { emoji:'🎂', title:'Dorty & cukrovinky', desc:'Dorty na objednávku, tartelettes s karamelem a pekanem, citronové cheesecaky, brownies s tvarohem a třešněmi. Také veganské možnosti.', tags:['Tartelettes','Cheesecake','Brownie','Na objednávku','Vegan'] },
+    { emoji:'🍞', title:'Řemeslný chléb', desc:'Francouzské bagety, kváskový chléb, celozrnný, žitný, ořechový. Pečeme celou noc pro ranní čerstvost. Mletí vlastní českou moukou.', tags:['Bagety','Kváskový','Celozrnný','Žitný','Ořechový'] },
+    { emoji:'☕', title:'Kavárna & snídaně', desc:'Cappuccino, flat white, latte, čerstvě vymačkané džusy a domácí limonáda. Snídaňové sety s quiche, teplými croissanty nebo bagel-sendviči.', tags:['Cappuccino','Flat White','Džusy','Quiche','Snídaně'] },
+    { emoji:'🚚', title:'Catering & rozvoz', desc:'Dodáváme do prvotřídních pražských hotelů a restaurací každé ráno. Možnost cateringových balíčků pro firemní akce a soukromé oslavy.', tags:['Hotely','Restaurace','Firemní','Oslavy','Praha'] },
+  ],
+  en: [
+    { emoji:'🥐', title:'French Pastries', desc:'Original croissants (butter, chocolate, almond), muffins, eclairs, palmiers, canelés and much more. All fresh, hand-shaped.', tags:['Croissants','Eclairs','Palmiers','Muffins','Canelé'] },
+    { emoji:'🎂', title:'Cakes & Confectionery', desc:'Custom-order cakes, caramel pecan tartelettes, lemon cheesecakes, cottage cheese and cherry brownies. Vegan options available.', tags:['Tartelettes','Cheesecake','Brownie','Custom','Vegan'] },
+    { emoji:'🍞', title:'Artisan Bread', desc:'French baguettes, sourdough, whole wheat, rye, walnut bread. Baked overnight for morning freshness. Using custom-milled Czech and French flour.', tags:['Baguettes','Sourdough','Whole Wheat','Rye','Walnut'] },
+    { emoji:'☕', title:'Café & Breakfast', desc:'Cappuccino, flat white, latte, freshly squeezed juices and homemade lemonade. Breakfast sets with quiche, warm croissants or bagel sandwiches.', tags:['Cappuccino','Flat White','Juice','Quiche','Breakfast'] },
+    { emoji:'🚚', title:'Catering & Delivery', desc:'We deliver to top Prague hotels and restaurants every morning. Catering packages available for corporate events and private celebrations.', tags:['Hotels','Restaurants','Corporate','Celebrations','Prague'] },
+  ],
+  de: [
+    { emoji:'🥐', title:'Französisches Gebäck', desc:'Original-Croissants (Butter, Schokolade, Mandel), Muffins, Eclairs, Palmiers, Canelés und vieles mehr. Alles frisch und handgeformt.', tags:['Croissants','Eclairs','Palmiers','Muffins','Canelé'] },
+    { emoji:'🎂', title:'Torten & Süßwaren', desc:'Maßgefertigte Torten, Karamell-Pekan-Tartelettes, Zitronen-Cheesecakes, Brownie mit Hüttenkäse und Kirschen. Auch vegane Optionen.', tags:['Tartelettes','Cheesecake','Brownie','Nach Maß','Vegan'] },
+    { emoji:'🍞', title:'Handwerksbrot', desc:'Französische Baguettes, Sauerteig-, Vollkorn-, Roggen-, Walnussbrot. Über Nacht gebacken für morgendliche Frische. Mit gemahlenem Spezialmehl.', tags:['Baguettes','Sauerteig','Vollkorn','Roggen','Walnuss'] },
+    { emoji:'☕', title:'Café & Frühstück', desc:'Cappuccino, Flat White, Latte, frisch gepresste Säfte und hausgemachte Limonade. Frühstückssets mit Quiche, warmen Croissants oder Bagel-Sandwiches.', tags:['Cappuccino','Flat White','Säfte','Quiche','Frühstück'] },
+    { emoji:'🚚', title:'Catering & Lieferung', desc:'Wir liefern jeden Morgen an erstklassige Prager Hotels und Restaurants. Catering-Pakete für Firmenveranstaltungen und private Feiern verfügbar.', tags:['Hotels','Restaurants','Firmen','Feiern','Prag'] },
+  ],
+  ru: [
+    { emoji:'🥐', title:'Французская выпечка', desc:'Оригинальные круассаны (сливочные, шоколадные, миндальные), маффины, эклеры, пальмье, канеле и многое другое. Всё свежее и ручной формовки.', tags:['Круассаны','Эклеры','Пальмье','Маффины','Канеле'] },
+    { emoji:'🎂', title:'Торты и кондитерские', desc:'Торты на заказ, тарталетки с карамелью и пеканом, лимонные чизкейки, брауни с творогом и вишней. Есть веганские варианты.', tags:['Тарталетки','Чизкейк','Брауни','На заказ','Веган'] },
+    { emoji:'🍞', title:'Ремесленный хлеб', desc:'Французские багеты, хлеб на закваске, цельнозерновой, ржаной, с орехами. Выпекается ночью для утренней свежести. Специально смолотая мука.', tags:['Багеты','На закваске','Цельнозерновой','Ржаной','Ореховый'] },
+    { emoji:'☕', title:'Кафе и завтраки', desc:'Капучино, флэт уайт, латте, свежевыжатые соки и домашний лимонад. Завтрачные сеты с киш, тёплыми круассанами или сэндвичами с бейглом.', tags:['Капучино','Флэт уайт','Соки','Киш','Завтрак'] },
+    { emoji:'🚚', title:'Кейтеринг и доставка', desc:'Доставляем в лучшие пражские отели и рестораны каждое утро. Кейтеринговые пакеты для корпоративных мероприятий и частных праздников.', tags:['Отели','Рестораны','Корпоратив','Праздники','Прага'] },
+  ],
+};
+
+let activeService = 0;
+
+function selectService(idx) {
+  activeService = idx;
+  document.querySelectorAll('.service-item').forEach((el,i) => el.classList.toggle('active', i===idx));
+  renderServiceDetail();
+}
+
+function renderServiceDetail() {
+  const data = servicesData[currentLang][activeService];
+  document.getElementById('serviceEmoji').textContent = data.emoji;
+  document.getElementById('serviceTitle').textContent = data.title;
+  document.getElementById('serviceDesc').textContent = data.desc;
+  document.getElementById('serviceTags').innerHTML = data.tags.map(t => `<span class="service-tag">${t}</span>`).join('');
+}
+renderServiceDetail();
+
+// ========== MENU DATA ==========
+const menuCategories = {
+  cs: ['Vše','Croissanty','Chleby','Dorty','Nápoje','Slané'],
+  en: ['All','Croissants','Breads','Cakes','Drinks','Savory'],
+  de: ['Alle','Croissants','Brote','Torten','Getränke','Herzhaft'],
+  ru: ['Всё','Круассаны','Хлеб','Торты','Напитки','Солёное'],
+};
+
+const menuItems = [
+  { emoji:'🥐', cat:1, name:{cs:'Máslový croissant',en:'Butter Croissant',de:'Butter-Croissant',ru:'Сливочный круассан'}, desc:{cs:'Klasika z Francie',en:'French classic',de:'Klassiker aus Frankreich',ru:'Французская классика'}, price:'45 Kč', badge:null },
+  { emoji:'🍫', cat:1, name:{cs:'Čokoládový croissant',en:'Chocolate Croissant',de:'Schokoladen-Croissant',ru:'Шоколадный круассан'}, desc:{cs:'Pain au chocolat',en:'Pain au chocolat',de:'Pain au chocolat',ru:'Pain au chocolat'}, price:'52 Kč', badge:null },
+  { emoji:'🌰', cat:1, name:{cs:'Mandlový croissant',en:'Almond Croissant',de:'Mandel-Croissant',ru:'Миндальный круассан'}, desc:{cs:'S marcipánem',en:'With marzipan',de:'Mit Marzipan',ru:'С марципаном'}, price:'58 Kč', badge:{cs:'Bestseller',en:'Bestseller',de:'Bestseller',ru:'Хит'} },
+  { emoji:'🍞', cat:2, name:{cs:'Francouzská bageta',en:'French Baguette',de:'Französisches Baguette',ru:'Французский багет'}, desc:{cs:'Tradiční recept',en:'Traditional recipe',de:'Traditionelles Rezept',ru:'Традиционный рецепт'}, price:'38 Kč', badge:null },
+  { emoji:'🫓', cat:2, name:{cs:'Kváskový chléb',en:'Sourdough Bread',de:'Sauerteigbrot',ru:'Хлеб на закваске'}, desc:{cs:'Celou noc kynutý',en:'Overnight fermented',de:'Über Nacht gegärt',ru:'Долгое брожение'}, price:'95 Kč', badge:{cs:'Oblíbený',en:'Popular',de:'Beliebt',ru:'Популярный'} },
+  { emoji:'🌰', cat:2, name:{cs:'Ořechový chléb',en:'Walnut Bread',de:'Walnussbrot',ru:'Ореховый хлеб'}, desc:{cs:'S vlašskými ořechy',en:'With walnuts',de:'Mit Walnüssen',ru:'С грецкими орехами'}, price:'110 Kč', badge:null },
+  { emoji:'🎂', cat:3, name:{cs:'Citronový koláč',en:'Lemon Tart',de:'Zitronentarte',ru:'Лимонный пирог'}, desc:{cs:'Vzdušný a svěží',en:'Light and fresh',de:'Leicht und frisch',ru:'Лёгкий и свежий'}, price:'75 Kč', badge:{cs:'Nové',en:'New',de:'Neu',ru:'Новинка'} },
+  { emoji:'🍮', cat:3, name:{cs:'Tartelette karamel–pekan',en:'Caramel Pecan Tartelette',de:'Karamell-Pekan-Tartelette',ru:'Тарталетка карамель-пекан'}, desc:{cs:'Sladká harmonie',en:'Sweet harmony',de:'Süße Harmonie',ru:'Сладкая гармония'}, price:'85 Kč', badge:null },
+  { emoji:'🍫', cat:3, name:{cs:'Brownie s třešněmi',en:'Cherry Brownie',de:'Kirsch-Brownie',ru:'Брауни с вишней'}, desc:{cs:'S tvarohem',en:'With cottage cheese',de:'Mit Hüttenkäse',ru:'С творогом'}, price:'65 Kč', badge:null },
+  { emoji:'☕', cat:4, name:{cs:'Cappuccino',en:'Cappuccino',de:'Cappuccino',ru:'Капучино'}, desc:{cs:'Italská klasika',en:'Italian classic',de:'Italienischer Klassiker',ru:'Итальянская классика'}, price:'75 Kč', badge:null },
+  { emoji:'🍋', cat:4, name:{cs:'Domácí limonáda',en:'Homemade Lemonade',de:'Hausgemachte Limonade',ru:'Домашний лимонад'}, desc:{cs:'Čerstvá citrusová',en:'Fresh citrus',de:'Frisch zubereitet',ru:'Свежие цитрусы'}, price:'65 Kč', badge:{cs:'Oblíbená',en:'Loved',de:'Geliebt',ru:'Любимый'} },
+  { emoji:'🥗', cat:5, name:{cs:'Quiche Lorraine',en:'Quiche Lorraine',de:'Quiche Lorraine',ru:'Киш Лорен'}, desc:{cs:'Klasický francouzský',en:'Classic French',de:'Klassisch französisch',ru:'Французская классика'}, price:'120 Kč', badge:null },
+];
+
+let activeCategory = 0;
+
+function buildMenuCategories(lang) {
+  const cats = menuCategories[lang];
+  const el = document.getElementById('menuCategories');
+  el.innerHTML = cats.map((c,i) => `<button class="cat-btn ${i===activeCategory?'active':''}" onclick="filterMenu(${i})">${c}</button>`).join('');
+}
+
+function filterMenu(catIdx) {
+  activeCategory = catIdx;
+  document.querySelectorAll('.cat-btn').forEach((b,i) => b.classList.toggle('active', i===catIdx));
+  renderMenuGrid();
+}
+
+function renderMenuGrid() {
+  const lang = currentLang;
+  const filtered = activeCategory === 0 ? menuItems : menuItems.filter(m => m.cat === activeCategory);
+  const el = document.getElementById('menuGrid');
+  el.innerHTML = filtered.map(item => `
+    <div class="menu-card">
+      ${item.badge ? `<div class="menu-card-badge">${item.badge[lang]}</div>` : ''}
+      <div class="menu-card-img">${item.emoji}</div>
+      <div class="menu-card-body">
+        <div class="menu-card-title">${item.name[lang]}</div>
+        <div class="menu-card-desc">${item.desc[lang]}</div>
+        <span class="menu-card-price">${item.price}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateDynamicContent() {
+  buildMarquee(currentLang);
+  buildMenuCategories(currentLang);
+  renderMenuGrid();
+  renderServiceDetail();
+}
+buildMenuCategories('cs');
+renderMenuGrid();
+
+// ========== SCROLL REVEAL ==========
+const revealEls = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+revealEls.forEach(el => revealObs.observe(el));
+</script>
+</body>
+</html>
